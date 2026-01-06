@@ -8,8 +8,8 @@ on:
 
 permissions:
   contents: read
-  pages: write      # required for Pages deploy
-  id-token: write   # required for OIDC during deploy
+  pages: write
+  id-token: write
 
 concurrency:
   group: "pages"
@@ -28,38 +28,34 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      # Use a lockfile if present; otherwise npm install is fine
-    - name: Install dependencies
-      run: npm ci || npm install
+      # ✅ Robust install: works with or without package-lock.json
+      - name: Install dependencies
+        run: npm ci || npm install
 
-
-      # Build the site (Vite reads vite.config.ts with base:'/Kanbanboardv1/')
       - name: Build
         run: npm run build
 
-      # ✅ Sanity check #1: the built HTML must not point to /src/main.tsx
+      # Sanity check: ensure we're not deploying dev entry
       - name: Assert dist/index.html does not point to /src
         run: |
           if grep -q "/src/main.tsx" dist/index.html; then
             echo "❌ dist/index.html still references /src/main.tsx (dev entry)."
-            echo "Fix: ensure you're deploying dist/, not the dev index.html."
             exit 1
           else
-            echo "✅ dist/index.html does not reference /src."
+            echo "✅ dist/index.html OK (no /src references)."
           fi
 
-      # ✅ Sanity check #2: base path must be injected (/Kanbanboardv1/)
+      # Sanity check: ensure base path is present
       - name: Assert base path is present
         run: |
           if grep -q "/Kanbanboardv1/" dist/index.html; then
-            echo "✅ dist/index.html contains the project base (/Kanbanboardv1/)."
+            echo "✅ Base path /Kanbanboardv1/ found in dist/index.html."
           else
-            echo "⚠️ dist/index.html does NOT contain /Kanbanboardv1/."
-            echo "Check vite.config.ts base and repository name/case."
+            echo "⚠️ dist/index.html missing /Kanbanboardv1/."
+            echo "Verify vite.config.ts base and repository name/case."
             exit 1
           fi
 
-      # Enable Pages and upload the build
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
