@@ -26,18 +26,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          # NOTE: remove cache because we’re not using a lockfile
+          # cache: "npm"
 
-      # Install deps: use npm ci if lock exists, else npm install
-      - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            rm -rf node_modules
-            npm ci
-          else
-            echo "No lock file found, using npm install"
-            npm install
-          fi
+      - name: Install dependencies (no lockfile)
+        run: npm install
 
       - name: Build
         run: npm run build
