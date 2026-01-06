@@ -28,13 +28,21 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install deps
-        run: npm ci
+      # Install deps: use npm ci if lock exists, else npm install
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            rm -rf node_modules
+            npm ci
+          else
+            echo "No lock file found, using npm install"
+            npm install
+          fi
 
       - name: Build
         run: npm run build
 
-      - name: Setup Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
