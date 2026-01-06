@@ -28,7 +28,7 @@ export function Header({
     <div className="bg-white border-b border-[#dbe4ed] shadow-[0px_3px_20px_0px_rgba(11,76,105,0.1)]">
       <div className="max-w-[1400px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo */} lksajdlkasjd 
           <div className="h-8 w-[82px]">
             <img src={logoSrc} alt="CFC" className="h-full w-full object-contain" />
           </div>
