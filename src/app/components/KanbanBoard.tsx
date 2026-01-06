@@ -9,7 +9,7 @@ import { GoalProjectSelector } from './GoalProjectSelector';
 import { TaskPreviewModal } from './TaskPreviewModal';
 import { Plus, Archive as ArchiveIcon, List, LayoutDashboard, Trash2, Save, Check, X } from 'lucide-react';
 import svgPaths from "../../imports/svg-baf0okhfln";
-import imgImageCfc from "figma:asset/3ddb27522d5762713ea84edcf8f81309111e4d6f.png";
+import imgImageCfc from "../../assets/cfcLogo.png";
 import { format } from 'date-fns';
 import { seedData } from '../../utils/seedData';
 
