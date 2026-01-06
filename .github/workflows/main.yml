@@ -1,5 +1,5 @@
 
-name: Deploy site to Pages
+name: Build and deploy to GitHub Pages (Vite React)
 
 on:
   push:
@@ -16,28 +16,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Sanity check to confirm the folder exists in the runner
-      - name: Show repo tree
-        run: |
-          pwd
-          ls -la
-          ls -la pages || true
-
-      - name: Upload files for Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./pages    # <-- IMPORTANT: your site root
-
       - name: Deploy to Pages
-        id: deploy
+        id: deployment
         uses: actions/deploy-pages@v4
