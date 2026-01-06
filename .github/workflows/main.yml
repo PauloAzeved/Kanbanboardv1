@@ -26,22 +26,49 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
-      # Install deps without requiring a lock file
+      # Use a lockfile if present; otherwise npm install is fine
       - name: Install dependencies
-        run: npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      # Build your Vite app (requires index.html at repo root and correct vite.config.ts base)
+      # Build the site (Vite reads vite.config.ts with base:'/Kanbanboardv1/')
       - name: Build
         run: npm run build
 
-      # Enable Pages site and configure OIDC for deployment
-      - name: Configure Pages (with auto-enable)
+      # ✅ Sanity check #1: the built HTML must not point to /src/main.tsx
+      - name: Assert dist/index.html does not point to /src
+        run: |
+          if grep -q "/src/main.tsx" dist/index.html; then
+            echo "❌ dist/index.html still references /src/main.tsx (dev entry)."
+            echo "Fix: ensure you're deploying dist/, not the dev index.html."
+            exit 1
+          else
+            echo "✅ dist/index.html does not reference /src."
+          fi
+
+      # ✅ Sanity check #2: base path must be injected (/Kanbanboardv1/)
+      - name: Assert base path is present
+        run: |
+          if grep -q "/Kanbanboardv1/" dist/index.html; then
+            echo "✅ dist/index.html contains the project base (/Kanbanboardv1/)."
+          else
+            echo "⚠️ dist/index.html does NOT contain /Kanbanboardv1/."
+            echo "Check vite.config.ts base and repository name/case."
+            exit 1
+          fi
+
+      # Enable Pages and upload the build
+      - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      # Upload the built site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
