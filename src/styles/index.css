@@ -1,3 +1,8 @@
-@import './fonts.css';
-@import './theme.css';
-@import './tailwind.css';
+
+/* 1) Import Tailwind v4 core (provides default theme tokens like --spacing) */
+@import "tailwindcss";
+
+/* 2) Then import your own CSS in any order */
+@import "./fonts.css";
+@import "./theme.css";
+/* If you had a v3-style file with @tailwind base/components/utilities, remove it in v4 */
