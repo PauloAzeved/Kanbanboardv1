@@ -8,8 +8,8 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  pages: write      # required for Pages deploy
+  id-token: write   # required for OIDC during deploy
 
 concurrency:
   group: "pages"
@@ -26,18 +26,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # NOTE: remove cache because we’re not using a lockfile
-          # cache: "npm"
 
-      - name: Install dependencies (no lockfile)
+      # Install deps without requiring a lock file
+      - name: Install dependencies
         run: npm install
 
+      # Build your Vite app (requires index.html at repo root and correct vite.config.ts base)
       - name: Build
         run: npm run build
 
-      - name: Configure Pages
+      # Enable Pages site and configure OIDC for deployment
+      - name: Configure Pages (with auto-enable)
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
+      # Upload the built site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
